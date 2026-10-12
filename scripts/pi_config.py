@@ -49,8 +49,11 @@ def valid_path(name):
 def collect(agent, portable):
     result = {}
     candidates = []
-    for name in sorted(FILES | DIRS):
-        path = agent / name
+    # Use actual directory entries to avoid case-insensitive filename aliases.
+    for path in sorted(agent.iterdir(), key=lambda p: p.name):
+        name = path.name
+        if name not in FILES | DIRS:
+            continue
         if path.is_symlink():
             raise ValueError('Symlink not supported: %s (copy actual resources here first)' % path)
         if path.is_file():
